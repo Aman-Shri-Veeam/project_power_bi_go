@@ -226,29 +226,8 @@ make test
 go test ./...
 ```
 
----
 
-## 📊 Features
 
-### Export (Backup)
-- ✅ Simple GET `/Export` endpoint
-- ✅ Direct binary PBIX download
-- ✅ Saves to `backup/pbix/` directory
-- ✅ Error handling and logging
-
-### Import (Restore)
-- ✅ Multipart form upload
-- ✅ POST `/imports` endpoint
-- ✅ Automatic duplicate detection
-- ✅ Dataset name conflict resolution
-
-### Refresh Schedules
-- ✅ Backup schedule configurations
-- ✅ Restore after import
-- ✅ Dataset ID mapping
-- ✅ Graceful error handling
-
----
 
 ## 🔐 Authentication
 
@@ -325,9 +304,6 @@ Comprehensive logging with levels:
 
 ---
 
-## 🤝 Contributing
-
-See individual package documentation for implementation details.
 
 ---
 
@@ -356,14 +332,7 @@ http://localhost:8060
 
 ---
 
-## 📞 Support
 
-- Check logs for detailed error information
-- Verify `.env` configuration
-- Ensure Power BI service principal has required permissions
-- Check network connectivity to Azure AD and Power BI API
-
----
 
 ## ✅ Status
 
