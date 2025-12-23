@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Backup Service - Go Edition</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>Power BI <strong>Backup</strong></h1>
+                <p class="subtitle">Enterprise-grade backup & restore service (Go Edition)</p>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="backup">📦 Backup</button>
+            <button class="tab-button" data-tab="restore">↩️ Restore</button>
+            <button class="tab-button" data-tab="history">📋 History</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Backup Tab -->
+            <section id="backup-tab" class="tab-content active">
+                <div class="card">
+                    <h2>📊 Select Workspace to Backup</h2>
+                    
+                    <div class="form-group">
+                        <label for="workspaceSelect">Available Workspaces</label>
+                        <div class="workspace-controls">
+                            <button type="button" id="loadWorkspacesBtn" class="btn btn-secondary">
+                                <span class="btn-icon">🔄</span> Load Workspaces
+                            </button>
+                            <span id="loadingSpinner" style="display:none; margin-left: 10px;">Loading...</span>
+                        </div>
+                        <select id="workspaceSelect" name="workspaceSelect">
+                            <option value="">-- Click "Load Workspaces" to fetch available workspaces --</option>
+                        </select>
+                        <small>Or manually enter workspace ID below</small>
+                    </div>
+
+                    <form id="backupForm" class="form">
+                        <div class="form-group">
+                            <label for="workspaceId">Workspace ID (Manual Entry)</label>
+                            <input 
+                                type="text" 
+                                id="workspaceId" 
+                                name="workspaceId" 
+                                placeholder="Enter your Power BI workspace ID or select from above"
+                            >
+                            <small>Alternatively, select from the dropdown above or enter manually</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox">
+                                <input type="checkbox" id="backupAll" name="backupAll">
+                                <span>Backup All Workspaces</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">💾</span> Start Backup
+                        </button>
+                    </form>
+                </div>
+
+                <div id="backupResult" class="result-container" style="display:none;">
+                    <div class="alert alert-success">
+                        <h3>✅ Backup Started Successfully!</h3>
+                        <div class="backup-info">
+                            <p><strong>Workspace ID:</strong> <span id="resultWorkspaceId"></span></p>
+                            <p><strong>Status:</strong> <span id="resultStatus"></span></p>
+                            <p><strong>Started:</strong> <span id="resultTimestamp"></span></p>
+                        </div>
+                        <p class="info-text">The backup is running in the background. Check server logs for progress.</p>
+                    </div>
+                </div>
+
+                <div id="backupError" class="result-container" style="display:none;">
+                    <div class="alert alert-error">
+                        <h3>❌ Backup Failed</h3>
+                        <p id="errorMessage"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Restore Tab -->
+            <section id="restore-tab" class="tab-content">
+                <div class="card">
+                    <h2>↩️ Restore from Backup</h2>
+                    
+                    <form id="restoreForm" class="form">
+                        <div class="form-group">
+                            <label for="restoreBackupSelect">Available Backups</label>
+                            <button type="button" id="loadBackupsBtn" class="btn btn-secondary">
+                                <span class="btn-icon">🔄</span> Load Backups
+                            </button>
+                            <select id="restoreBackupSelect" name="restoreBackupSelect">
+                                <option value="">-- Click "Load Backups" to fetch available backups --</option>
+                            </select>
+                            <small>Select a backup to restore</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="restoreWorkspaceId">Target Workspace ID</label>
+                            <input 
+                                type="text" 
+                                id="restoreWorkspaceId" 
+                                name="restoreWorkspaceId" 
+                                placeholder="Enter target workspace ID"
+                                required
+                            >
+                            <small>The workspace where data will be restored</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">🚀</span> Start Restore
+                        </button>
+                    </form>
+                </div>
+
+                <div id="restoreResult" class="result-container" style="display:none;">
+                    <div class="alert alert-success">
+                        <h3>✅ Restore Started Successfully!</h3>
+                        <div class="backup-info">
+                            <p><strong>Workspace ID:</strong> <span id="restoreResultWorkspaceId"></span></p>
+                            <p><strong>Backup Path:</strong> <span id="restoreResultBackupPath"></span></p>
+                            <p><strong>Status:</strong> <span id="restoreResultStatus"></span></p>
+                            <p><strong>Started:</strong> <span id="restoreResultTimestamp"></span></p>
+                        </div>
+                        <p class="info-text">The restore is running in the background. Check server logs for progress.</p>
+                    </div>
+                </div>
+
+                <div id="restoreError" class="result-container" style="display:none;">
+                    <div class="alert alert-error">
+                        <h3>❌ Restore Failed</h3>
+                        <p id="restoreErrorMessage"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history-tab" class="tab-content">
+                <div class="card">
+                    <h2>📋 Backup History</h2>
+                    <button id="refreshHistoryBtn" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span> Refresh
+                    </button>
+                    <div id="historyContainer" class="list-container">
+                        <p class="loading">Click refresh to load backups...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🛡️ <strong>Power BI Backup Service</strong> - Go Edition</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">Enterprise backup & restore solution built with Go</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="toast" style="display:none;">
+        <span id="notificationText"></span>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
